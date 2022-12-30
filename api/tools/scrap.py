@@ -29,11 +29,31 @@ else:
 wojewodztwa = client.service.PobierzListeWojewodztw(STATE_DATE)
 
 # Creating objects in database
-for obj in wojewodztwa:
-    woj = models.Wojewodztwo.objects.create(
-        name = obj['NAZWA'],
-        extra_name = obj['NAZWA_DOD'],
-        woj_id = obj['WOJ'],
-        status_on_day = obj['STAN_NA']
-    )
-    print(f"Created: {woj.woj_id}, {woj.name}")
+# for obj in wojewodztwa:
+#     woj = models.Wojewodztwo.objects.create(
+#         name = obj['NAZWA'],
+#         extra_name = obj['NAZWA_DOD'],
+#         woj_id = obj['WOJ'],
+#         status_on_day = obj['STAN_NA']
+#     )
+#     print(f"Created: {woj.woj_id}, {woj.name}")
+
+
+powiaty = client.service.PobierzListePowiatow("02", STATE_DATE)
+
+# Creating objects in database
+# for obj in wojewodztwa:
+#     woj_id = obj['WOJ']
+#     current_woj = models.Wojewodztwo.objects.get(woj_id=woj_id)
+
+#     powiaty = client.service.PobierzListePowiatow(woj_id, STATE_DATE)
+
+#     for i in powiaty:
+#         pow = models.Powiat.objects.create(
+#             name = i['NAZWA'],
+#             extra_name = i['NAZWA_DOD'],
+#             pow_id = i['POW'],
+#             status_on_day = i['STAN_NA'],
+#             wojewodztwo = current_woj
+#         )
+#         print(f"Created: {pow.pow_id}, {pow.name}")

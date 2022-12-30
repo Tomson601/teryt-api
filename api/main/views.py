@@ -10,3 +10,10 @@ class WojewodztwoViewSet(ModelViewSet):
     lookup_field = "woj_id"
     lookup_url_kwarg = "woj_id"
     http_method_names = ["get"]
+
+class PowiatViewSet(ModelViewSet):
+    queryset = models.Powiat.objects.all()
+    serializer_class = serializers.PowiatSerializer
+    lookup_field = "pow_id"
+    lookup_url_kwarg = "pow_id"
+    http_method_names = ["get"]

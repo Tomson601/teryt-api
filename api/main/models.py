@@ -8,7 +8,14 @@ class Wojewodztwo(models.Model):
     status_on_day =models.CharField(max_length=150, null=False)
 
     def __str__(self):
-        return {
-            self.name,
-            self.woj_id
-        }
+        return self.name
+
+class Powiat(models.Model):
+    name = models.CharField(max_length=150, null=False)
+    extra_name = models.CharField(max_length=150, null=False)
+    pow_id = models.CharField(max_length=150, null=False)
+    status_on_day = models.CharField(max_length=150, null=False)
+    wojewodztwo = models.ForeignKey(Wojewodztwo, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.name
