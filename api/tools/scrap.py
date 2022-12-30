@@ -36,4 +36,4 @@ for obj in wojewodztwa:
         woj_id = obj['WOJ'],
         status_on_day = obj['STAN_NA']
     )
-    print(f"Created: {woj.id}, {woj.name}")
+    print(f"Created: {woj.woj_id}, {woj.name}")
