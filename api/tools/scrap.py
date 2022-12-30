@@ -1,6 +1,8 @@
 from zeep import Client
 from zeep.wsse.username import UsernameToken
+from datetime import datetime
 
+STATE_DATE = datetime.now()
 
 CREDENTIALS = {
     'wsdl': 'https://uslugaterytws1test.stat.gov.pl/wsdl/terytws1.wsdl',
@@ -14,4 +16,12 @@ token = UsernameToken(
 )
 client = Client(wsdl=CREDENTIALS['wsdl'], wsse=token)
 
-print(client.service.CzyZalogowany())
+is_authenticated = client.service.CzyZalogowany()
+
+if not is_authenticated:
+    print("You are not logged in!")
+else:
+    print("Login succeed")
+
+wojewodztwa = client.service.PobierzListeWojewodztw(STATE_DATE)
+print(wojewodztwa)
