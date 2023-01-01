@@ -90,33 +90,33 @@ else:
 
 # Parsing dla miast:
 
-wojewodztwa = models.Wojewodztwo.objects.all()
+# wojewodztwa = models.Wojewodztwo.objects.all()
 
-for woj in wojewodztwa:
-    print(woj.name)
-    powiaty = models.Powiat.objects.filter(wojewodztwo=woj.id)
+# for woj in wojewodztwa:
+#     print(woj.name)
+#     powiaty = models.Powiat.objects.filter(wojewodztwo=woj.id)
 
-    for pow in powiaty:
-        print(pow.name)
-        gminy = models.Gmina.objects.filter(powiat=pow.id)
+#     for pow in powiaty:
+#         print(pow.name)
+#         gminy = models.Gmina.objects.filter(powiat=pow.id)
 
-        for gmi in gminy:
-            print(gmi.name)
+#         for gmi in gminy:
+#             print(gmi.name)
 
-            time.sleep(2.5)
+#             time.sleep(2.5)
 
-            miejscowosci = client.service.PobierzListeMiejscowosciWGminie(woj.name, pow.name, gmi.name, STATE_DATE)
+#             miejscowosci = client.service.PobierzListeMiejscowosciWGminie(woj.name, pow.name, gmi.name, STATE_DATE)
 
-            if miejscowosci is not None:
+#             if miejscowosci is not None:
 
-                for miej in miejscowosci:
-                    miejscowosc = models.Miejscowosc.objects.create(
-                        name = miej['Nazwa'],
-                        miejsc_id = miej['Symbol'],
-                        wojewodztwo = woj,
-                        powiat = pow,
-                        gmina = gmi,
-                    )
-                    print(f"Created object: {miejscowosc}, in wojewodztwo: {woj}")
-            else:
-                print(f"Not found any miejscowosci for {gmi}. Skiping...")
+#                 for miej in miejscowosci:
+#                     miejscowosc = models.Miejscowosc.objects.create(
+#                         name = miej['Nazwa'],
+#                         miejsc_id = miej['Symbol'],
+#                         wojewodztwo = woj,
+#                         powiat = pow,
+#                         gmina = gmi,
+#                     )
+#                     print(f"Created object: {miejscowosc}, in wojewodztwo: {woj}")
+#             else:
+#                 print(f"Not found any miejscowosci for {gmi}. Skiping...")
