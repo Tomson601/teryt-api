@@ -24,4 +24,4 @@ class MiejscowoscSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Miejscowosc
-        fields = ["id", "name", "extra_name", "miejsc_id", "status_on_day", "wojewodztwo", "powiat", "gmina"]
+        fields = ["id", "name", "miejsc_id", "wojewodztwo", "powiat", "gmina"]

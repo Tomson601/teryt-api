@@ -3,6 +3,7 @@ from zeep.wsse.username import UsernameToken
 from datetime import datetime
 from main import models
 import requests
+import time
 
 
 STATE_DATE = datetime.now()
@@ -87,4 +88,35 @@ else:
 #             print(gmina)
 
 
-# # Parsing dla miast:
+# Parsing dla miast:
+
+wojewodztwa = models.Wojewodztwo.objects.all()
+
+for woj in wojewodztwa:
+    print(woj.name)
+    powiaty = models.Powiat.objects.filter(wojewodztwo=woj.id)
+
+    for pow in powiaty:
+        print(pow.name)
+        gminy = models.Gmina.objects.filter(powiat=pow.id)
+
+        for gmi in gminy:
+            print(gmi.name)
+
+            time.sleep(2.5)
+
+            miejscowosci = client.service.PobierzListeMiejscowosciWGminie(woj.name, pow.name, gmi.name, STATE_DATE)
+
+            if miejscowosci is not None:
+
+                for miej in miejscowosci:
+                    miejscowosc = models.Miejscowosc.objects.create(
+                        name = miej['Nazwa'],
+                        miejsc_id = miej['Symbol'],
+                        wojewodztwo = woj,
+                        powiat = pow,
+                        gmina = gmi,
+                    )
+                    print(f"Created object: {miejscowosc}, in wojewodztwo: {woj}")
+            else:
+                print(f"Not found any miejscowosci for {gmi}. Skiping...")
