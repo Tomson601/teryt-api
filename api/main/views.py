@@ -17,3 +17,10 @@ class PowiatViewSet(ModelViewSet):
     lookup_field = "pow_id"
     lookup_url_kwarg = "pow_id"
     http_method_names = ["get"]
+
+class GminaViewSet(ModelViewSet):
+    queryset = models.Gmina.objects.all()
+    serializer_class = serializers.GminaSerializer
+    lookup_field = "gmi_id"
+    lookup_url_kwarg = "gmi_id"
+    http_method_names = ["get"]

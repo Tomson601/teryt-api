@@ -2,6 +2,7 @@ from zeep import Client
 from zeep.wsse.username import UsernameToken
 from datetime import datetime
 from main import models
+import requests
 
 
 STATE_DATE = datetime.now()
@@ -26,9 +27,9 @@ if not is_authenticated:
 else:
     print("Login succeed")
 
-wojewodztwa = client.service.PobierzListeWojewodztw(STATE_DATE)
+# wojewodztwa = client.service.PobierzListeWojewodztw(STATE_DATE)
 
-# Creating objects in database
+## Creating objects in database
 # for obj in wojewodztwa:
 #     woj = models.Wojewodztwo.objects.create(
 #         name = obj['NAZWA'],
@@ -39,9 +40,9 @@ wojewodztwa = client.service.PobierzListeWojewodztw(STATE_DATE)
 #     print(f"Created: {woj.woj_id}, {woj.name}")
 
 
-powiaty = client.service.PobierzListePowiatow("02", STATE_DATE)
+# powiaty = client.service.PobierzListePowiatow("02", STATE_DATE)
 
-# Creating objects in database
+# ## Creating objects in database
 # for obj in wojewodztwa:
 #     woj_id = obj['WOJ']
 #     current_woj = models.Wojewodztwo.objects.get(woj_id=woj_id)
@@ -57,3 +58,33 @@ powiaty = client.service.PobierzListePowiatow("02", STATE_DATE)
 #             wojewodztwo = current_woj
 #         )
 #         print(f"Created: {pow.pow_id}, {pow.name}")
+
+# # # Geting data from API:
+
+# # request = requests.get("https://tomson601.pythonanywhere.com/wojewodztwa/")
+
+# # print(request.json())
+
+
+# # Parsing gminy:
+# wojewodztwa = models.Wojewodztwo.objects.all()
+
+# for woj in wojewodztwa:
+#     print(woj.name)
+#     powiaty = models.Powiat.objects.filter(wojewodztwo=woj.id)
+#     for pow in powiaty:
+#         print(pow.name)
+#         gminy = client.service.PobierzListeGmin(woj.woj_id, pow.pow_id, STATE_DATE)
+#         for gmi in gminy:
+#             gmina = models.Gmina.objects.create(
+#                 name = gmi['NAZWA'],
+#                 extra_name = gmi['NAZWA_DOD'],
+#                 gmi_id = gmi['GMI'],
+#                 status_on_day = gmi['STAN_NA'],
+#                 wojewodztwo = woj,
+#                 powiat = pow,
+#             )
+#             print(gmina)
+
+
+# # Parsing dla miast:
