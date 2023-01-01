@@ -24,3 +24,10 @@ class GminaViewSet(ModelViewSet):
     lookup_field = "gmi_id"
     lookup_url_kwarg = "gmi_id"
     http_method_names = ["get"]
+
+class MiejscowoscViewSet(ModelViewSet):
+    queryset = models.Miejscowosc.objects.all()
+    serializer_class = serializers.MiejscowoscSerializer
+    lookup_field = "miejsc_id"
+    lookup_url_kwarg = "miejsc_id"
+    http_method_names = ["get"]

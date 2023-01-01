@@ -19,3 +19,9 @@ class GminaSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Gmina
         fields = ["id", "name", "extra_name", "gmi_id", "status_on_day", "wojewodztwo", "powiat"]
+
+class MiejscowoscSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Miejscowosc
+        fields = ["id", "name", "extra_name", "miejsc_id", "status_on_day", "wojewodztwo", "powiat", "gmina"]
