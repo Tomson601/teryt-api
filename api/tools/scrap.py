@@ -4,6 +4,8 @@ from datetime import datetime
 from main import models
 import requests
 import time
+from base64 import b64decode
+from zipfile import ZipFile
 
 
 STATE_DATE = datetime.now()
@@ -120,3 +122,43 @@ else:
 #                     print(f"Created object: {miejscowosc}, in wojewodztwo: {woj}")
 #             else:
 #                 print(f"Not found any miejscowosci for {gmi}. Skiping...")
+
+
+ULIC = client.service.PobierzKatalogULIC(STATE_DATE)
+
+file_name = ULIC["nazwa_pliku"]
+content = ULIC["plik_zawartosc"]
+
+
+decoded = b64decode(content)
+
+with open(file_name, 'wb') as file:
+    file.write(decoded)
+    file.close()
+
+
+zf = ZipFile(file_name, 'r')
+
+print(zf.namelist())
+
+with zf.open(zf.namelist()[0]) as xml_file:
+    print(xml_file.read(n=1024))
+
+from xml.dom import minidom
+
+with zf.open(zf.namelist()[0]) as xml_file:
+    DOMTree = minidom.parse(xml_file)
+
+    children = DOMTree.childNodes
+    for row in children[0].getElementsByTagName('row'):
+        print(row.getElementsByTagName('NAZWA')[0].childNodes[0].toxml())
+
+
+import csv
+import io
+
+with zf.open(zf.namelist()[1]) as csv_file:
+    text_file = io.TextIOWrapper(csv_file)
+    csv_reader = csv.reader(text_file, delimiter=";")
+    for row in csv_reader:
+        print(row)
