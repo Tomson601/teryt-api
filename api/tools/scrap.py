@@ -1,11 +1,100 @@
 from zeep import Client
 from zeep.wsse.username import UsernameToken
 from datetime import datetime
-from main import models
-import requests
-import time
+# from main import models
+# import requests
+# import time
 from base64 import b64decode
 from zipfile import ZipFile
+import csv
+import io
+import json
+
+
+STATE_DATE = datetime.now()
+CREDENTIALS = {
+    'wsdl': 'https://uslugaterytws1test.stat.gov.pl/wsdl/terytws1.wsdl',
+    'username': 'TestPubliczny',
+    'password': '1234abcd'
+}
+
+token = UsernameToken(
+    username=CREDENTIALS['username'],
+    password=CREDENTIALS['password']
+)
+
+client = Client(wsdl=CREDENTIALS['wsdl'], wsse=token)
+
+is_authenticated = client.service.CzyZalogowany()
+
+# Checking if auth is working properly
+if not is_authenticated:
+    print("You are not logged in!")
+else:
+    print("Login succeed")
+
+
+def parse_simc_csv():
+    catalog = client.service.PobierzKatalogSIMC(STATE_DATE)
+
+    filename = catalog['nazwa_pliku']
+    content = catalog['plik_zawartosc']
+
+    decoded = b64decode(content)
+
+    zip_file = ZipFile(filename+".zip", 'r')
+
+    with open(filename+".json", "w") as json_file:
+
+        with zip_file.open(zip_file.namelist()[1]) as csv_file:
+
+            text_file = io.TextIOWrapper(csv_file)
+            csv_reader = csv.reader(text_file, delimiter=";")
+            
+            json_file.write("[")
+
+            for row in csv_reader:
+                if len(row) == 0:
+                    break
+                dictionary = {
+                    "WOJ": row[0],
+                    "POW": row[1],
+                    "GMI": row[2],
+                    "RODZ_GMI": row[3],
+                    "RM": row[4],
+                    "MZ": row[5],
+                    "NAZWA": row[6],
+                    "SYM": row[7],
+                    "SYMPOD": row[8],
+                    "STAN_NA": row[9],
+                }
+                converted_json = json.dumps(dictionary, indent=4)
+                json_file.write(converted_json)
+                json_file.write(",")
+
+            json_file.write("]")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 STATE_DATE = datetime.now()
@@ -137,16 +226,16 @@ with open(file_name, 'wb') as file:
     file.close()
 
 
-zf = ZipFile(file_name, 'r')
+zip_file = ZipFile(file_name, 'r')
 
-print(zf.namelist())
+print(zip_file.namelist())
 
-with zf.open(zf.namelist()[0]) as xml_file:
+with zip_file.open(zip_file.namelist()[0]) as xml_file:
     print(xml_file.read(n=1024))
 
 from xml.dom import minidom
 
-with zf.open(zf.namelist()[0]) as xml_file:
+with zip_file.open(zip_file.namelist()[0]) as xml_file:
     DOMTree = minidom.parse(xml_file)
 
     children = DOMTree.childNodes
@@ -157,7 +246,7 @@ with zf.open(zf.namelist()[0]) as xml_file:
 import csv
 import io
 
-with zf.open(zf.namelist()[1]) as csv_file:
+with zip_file.open(zip_file.namelist()[1]) as csv_file:
     text_file = io.TextIOWrapper(csv_file)
     csv_reader = csv.reader(text_file, delimiter=";")
     for row in csv_reader:
