@@ -77,6 +77,7 @@ class Miejscowosc(models.Model):
     wojewodztwo = models.ForeignKey(Wojewodztwo, on_delete=models.PROTECT)
     powiat = models.ForeignKey(Powiat, on_delete=models.PROTECT)
     gmina = models.ForeignKey(Gmina, on_delete=models.PROTECT)
+    status_on_day = models.CharField(max_length=150, null=False)
 
     def __str__(self):
         return self.name
@@ -86,6 +87,7 @@ class Miejscowosc(models.Model):
             "id": self.id,
             "name": self.name,
             "miejsc_id": self.miejsc_id,
+            "status_on_day": self.status_on_day,
             "wojewodztwo": {
                 "name": self.wojewodztwo.name,
                 "woj_id": self.wojewodztwo.woj_id,

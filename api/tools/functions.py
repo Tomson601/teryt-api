@@ -81,31 +81,8 @@ def download_catalogs(client, is_authenticated=False, all=False, simc=False, uli
             file.close()
         print(f"Succesfully downloaded: TERC.zip")
 
-# Miejscowosci
-def parse_SIMC(filename):
-    # if "SIMC" not in filename:
-    #     return("Make sure you passed SIMC database with 'SIMC' in file name. Aborting...")
-
-    zip_file = ZipFile(filename, 'r')
-
-    with zip_file.open(zip_file.namelist()[1]) as csv_file:
-    
-        text_file = io.TextIOWrapper(csv_file)
-        csv_reader = csv.reader(text_file, delimiter=";")
-        count_objects = 0
-
-        # Gathering keywords
-        first_row = csv_reader.__next__()
-        stan_na_index = 0
-
-        # for row in csv_reader:
-        #     print(row)
-        #     count_objects+=1
-
-
-
 # Wojewodztwa, powiaty, gminy
-def parse_TERC(filename):
+def parse_TERC(filename, verbose=True):
     zip_file = ZipFile(filename, 'r')
 
     with zip_file.open(zip_file.namelist()[1]) as csv_file:
@@ -124,8 +101,6 @@ def parse_TERC(filename):
         index_pow = first_row.index("POW")
         index_gmi = first_row.index("GMI")
 
-        print(first_row, index_woj, index_pow, index_gmi)
-
         for row in csv_reader:
             if row != []:
                 if row[index_woj] != '' and row[index_pow] == '' and row[index_gmi] == '':
@@ -135,7 +110,8 @@ def parse_TERC(filename):
                         woj_id = row[index_woj],
                         status_on_day = row[index_status_on_day],
                     )
-                    print(f"Created wojwodztwo: {wojewodztwo}")
+                    if verbose:
+                        print(f"Created wojwodztwo: {wojewodztwo}")
 
                 elif row[index_woj] != '' and row[index_pow] != '' and row[index_gmi] == '':
                     powiat = models.Powiat.objects.create(
@@ -145,7 +121,8 @@ def parse_TERC(filename):
                         status_on_day = row[index_status_on_day],
                         wojewodztwo = wojewodztwo,
                     )
-                    print(f"Created powiat: {powiat}, in wojewodztwo: {wojewodztwo}")
+                    if verbose:
+                        print(f"Created powiat: {powiat}, in wojewodztwo: {wojewodztwo}")
 
                 else:
                     gmina = models.Gmina.objects.create(
@@ -156,66 +133,59 @@ def parse_TERC(filename):
                         wojewodztwo = wojewodztwo,
                         powiat = powiat,
                     )
-                    print(f"Created gmina: {gmina}, in powiat: {powiat}")
+                    if verbose:
+                        print(f"Created gmina: {gmina}, in powiat: {powiat}")
                 count_objects+=1
 
-
             else:
-                print(f"Found blank line: {row}, passing...")
+                if verbose:
+                    print(f"Found blank line: {row}, passing...")
 
     return print(f"Successfully created {count_objects} objects.")
 
+# Miejscowosci EST: 10:00 mins, 102311 objects
+def parse_SIMC(filename):
+    zip_file = ZipFile(filename, 'r')
 
+    with zip_file.open(zip_file.namelist()[1]) as csv_file:
+    
+        text_file = io.TextIOWrapper(csv_file)
+        csv_reader = csv.reader(text_file, delimiter=";")
+        count_objects = 0
 
+        # Gathering keywords
+        first_row = csv_reader.__next__()
 
+        index_status_on_day = first_row.index("STAN_NA")
+        index_name = first_row.index("NAZWA")
+        index_woj = first_row.index("\ufeffWOJ")
+        index_pow = first_row.index("POW")
+        index_gmi = first_row.index("GMI")
 
+        for row in csv_reader:
+            if row != []:
+                wojewodztwo = models.Wojewodztwo.objects.get(woj_id=row[index_woj])
 
+                powiaty = models.Powiat.objects.filter(wojewodztwo=wojewodztwo)
+                for i in powiaty:
+                    if i.pow_id == row[index_pow]:
+                        powiat = i
 
+                gminy = models.Gmina.objects.filter(wojewodztwo=wojewodztwo, powiat=powiat)
+                for i in gminy:
+                    if i.gmi_id == row[index_gmi]:
+                        gmina = i
 
+                miejscowosc = models.Miejscowosc.objects.create(
+                    name = row[index_name],
+                    miejsc_id = row[index_woj],
+                    wojewodztwo = wojewodztwo,
+                    powiat = powiat,
+                    gmina = gmina,
+                    status_on_day = row[index_status_on_day],
+                )
 
-
-
-
-
-
-
-
-
-
-
-
-# def parse_target(filename):
-#     zip_file = ZipFile(filename+".zip", 'r')
-
-#     with open(filename+".json", "w") as json_file:
-
-#         with zip_file.open(zip_file.namelist()[1]) as csv_file:
-
-#             text_file = io.TextIOWrapper(csv_file)
-#             csv_reader = csv.reader(text_file, delimiter=";")
-            
-#             json_file.write("[")
-
-#             for row in csv_reader:
-#                 if len(row) == 0:
-#                     break
-#                 dictionary = {
-#                     "WOJ": row[0],
-#                     "POW": row[1],
-#                     "GMI": row[2],
-#                     "RODZ_GMI": row[3],
-#                     "RM": row[4],
-#                     "MZ": row[5],
-#                     "NAZWA": row[6],
-#                     "SYM": row[7],
-#                     "SYMPOD": row[8],
-#                     "STAN_NA": row[9],
-#                 }
-#                 converted_json = json.dumps(dictionary, indent=4)
-#                 json_file.write(converted_json)
-#                 json_file.write(",")
-
-#             json_file.write("]")
+                print(f"Created miejscowosc: {miejscowosc}")
 
 
 # def parse_all():
