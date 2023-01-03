@@ -10,7 +10,7 @@ import csv
 import io
 import json
 import os
-# Make sure you are in main/catalogs/ directory
+
 
 STATE_DATE = datetime.now()
 CREDENTIALS = {
@@ -37,7 +37,7 @@ def establish_connection(credentials):
 
     return client, is_authenticated
 
-
+# Make sure you are in main/catalogs/ directory
 def download_catalogs(client, is_authenticated=False, all=False, simc=False, ulic=False, terc=False):
     if not is_authenticated:
         return("You are not logged in!")
@@ -151,7 +151,6 @@ def parse_SIMC(filename):
     
         text_file = io.TextIOWrapper(csv_file)
         csv_reader = csv.reader(text_file, delimiter=";")
-        count_objects = 0
 
         # Gathering keywords
         first_row = csv_reader.__next__()
@@ -188,153 +187,46 @@ def parse_SIMC(filename):
                 print(f"Created miejscowosc: {miejscowosc}")
 
 
-# def parse_all():
-#     files = [f for f in os.listdir('.') if os.path.isfile(f)]
+def parse_ULIC(filename):
+    zip_file = ZipFile(filename, 'r')
 
-#     if len(files) == 0:
-#         print("Couldn't find any file in current directroy. Make sure you are located in 'main/catalogs/ directory'")
-#     for f in files:
-#         if "TERC" in f:
-            
-#         elif "SIMC" in f:
+    with zip_file.open(zip_file.namelist()[1]) as csv_file:
+    
+        text_file = io.TextIOWrapper(csv_file)
+        csv_reader = csv.reader(text_file, delimiter=";")
 
-#         elif "ULIC" in f:
+        # Gathering keywords
+        # first_row = csv_reader.__next__()
 
-#         else:
-#             print("Error: this file names are not supported!")
+        # index_status_on_day = first_row.index("STAN_NA")
+        # index_name = first_row.index("NAZWA")
+        # index_woj = first_row.index("\ufeffWOJ")
+        # index_pow = first_row.index("POW")
+        # index_gmi = first_row.index("GMI")
 
+        for row in csv_reader:
+            if row != []:
+                print(row)
+                input("SIEMA!")
+                # wojewodztwo = models.Wojewodztwo.objects.get(woj_id=row[index_woj])
 
+                # powiaty = models.Powiat.objects.filter(wojewodztwo=wojewodztwo)
+                # for i in powiaty:
+                #     if i.pow_id == row[index_pow]:
+                #         powiat = i
 
+                # gminy = models.Gmina.objects.filter(wojewodztwo=wojewodztwo, powiat=powiat)
+                # for i in gminy:
+                #     if i.gmi_id == row[index_gmi]:
+                #         gmina = i
 
-# wojewodztwa = client.service.PobierzListeWojewodztw(STATE_DATE)
+                # miejscowosc = models.Miejscowosc.objects.create(
+                #     name = row[index_name],
+                #     miejsc_id = row[index_woj],
+                #     wojewodztwo = wojewodztwo,
+                #     powiat = powiat,
+                #     gmina = gmina,
+                #     status_on_day = row[index_status_on_day],
+                # )
 
-## Creating objects in database
-# for obj in wojewodztwa:
-#     woj = models.Wojewodztwo.objects.create(
-#         name = obj['NAZWA'],
-#         extra_name = obj['NAZWA_DOD'],
-#         woj_id = obj['WOJ'],
-#         status_on_day = obj['STAN_NA']
-#     )
-#     print(f"Created: {woj.woj_id}, {woj.name}")
-
-
-# powiaty = client.service.PobierzListePowiatow("02", STATE_DATE)
-
-# ## Creating objects in database
-# for obj in wojewodztwa:
-#     woj_id = obj['WOJ']
-#     current_woj = models.Wojewodztwo.objects.get(woj_id=woj_id)
-
-#     powiaty = client.service.PobierzListePowiatow(woj_id, STATE_DATE)
-
-#     for i in powiaty:
-#         pow = models.Powiat.objects.create(
-#             name = i['NAZWA'],
-#             extra_name = i['NAZWA_DOD'],
-#             pow_id = i['POW'],
-#             status_on_day = i['STAN_NA'],
-#             wojewodztwo = current_woj
-#         )
-#         print(f"Created: {pow.pow_id}, {pow.name}")
-
-# # # Geting data from API:
-
-# # request = requests.get("https://tomson601.pythonanywhere.com/wojewodztwa/")
-
-# # print(request.json())
-
-
-# # Parsing gminy:
-# wojewodztwa = models.Wojewodztwo.objects.all()
-
-# for woj in wojewodztwa:
-#     print(woj.name)
-#     powiaty = models.Powiat.objects.filter(wojewodztwo=woj.id)
-#     for pow in powiaty:
-#         print(pow.name)
-#         gminy = client.service.PobierzListeGmin(woj.woj_id, pow.pow_id, STATE_DATE)
-#         for gmi in gminy:
-#             gmina = models.Gmina.objects.create(
-#                 name = gmi['NAZWA'],
-#                 extra_name = gmi['NAZWA_DOD'],
-#                 gmi_id = gmi['GMI'],
-#                 status_on_day = gmi['STAN_NA'],
-#                 wojewodztwo = woj,
-#                 powiat = pow,
-#             )
-#             print(gmina)
-
-
-# Parsing dla miast:
-
-# wojewodztwa = models.Wojewodztwo.objects.all()
-
-# for woj in wojewodztwa:
-#     print(woj.name)
-#     powiaty = models.Powiat.objects.filter(wojewodztwo=woj.id)
-
-#     for pow in powiaty:
-#         print(pow.name)
-#         gminy = models.Gmina.objects.filter(powiat=pow.id)
-
-#         for gmi in gminy:
-#             print(gmi.name)
-
-#             time.sleep(2.5)
-
-#             miejscowosci = client.service.PobierzListeMiejscowosciWGminie(woj.name, pow.name, gmi.name, STATE_DATE)
-
-#             if miejscowosci is not None:
-
-#                 for miej in miejscowosci:
-#                     miejscowosc = models.Miejscowosc.objects.create(
-#                         name = miej['Nazwa'],
-#                         miejsc_id = miej['Symbol'],
-#                         wojewodztwo = woj,
-#                         powiat = pow,
-#                         gmina = gmi,
-#                     )
-#                     print(f"Created object: {miejscowosc}, in wojewodztwo: {woj}")
-#             else:
-#                 print(f"Not found any miejscowosci for {gmi}. Skiping...")
-
-
-# ULIC = client.service.PobierzKatalogULIC(STATE_DATE)
-
-# file_name = ULIC["nazwa_pliku"]
-# content = ULIC["plik_zawartosc"]
-
-
-# decoded = b64decode(content)
-
-# with open(file_name, 'wb') as file:
-#     file.write(decoded)
-#     file.close()
-
-
-# zip_file = ZipFile(file_name, 'r')
-
-# print(zip_file.namelist())
-
-# with zip_file.open(zip_file.namelist()[0]) as xml_file:
-#     print(xml_file.read(n=1024))
-
-# from xml.dom import minidom
-
-# with zip_file.open(zip_file.namelist()[0]) as xml_file:
-#     DOMTree = minidom.parse(xml_file)
-
-#     children = DOMTree.childNodes
-#     for row in children[0].getElementsByTagName('row'):
-#         print(row.getElementsByTagName('NAZWA')[0].childNodes[0].toxml())
-
-
-# import csv
-# import io
-
-# with zip_file.open(zip_file.namelist()[1]) as csv_file:
-#     text_file = io.TextIOWrapper(csv_file)
-#     csv_reader = csv.reader(text_file, delimiter=";")
-#     for row in csv_reader:
-#         print(row)
+                # print(f"Created miejscowosc: {miejscowosc}")
