@@ -244,7 +244,7 @@ def parse_ULIC(filename):
                 print(f"Created ulica: {ulica}, {ulica.ul_id}, {ulica.wojewodztwo}")
 
 
-def parse_SIMC(filename):
+def check_len_SIMC(filename):
     zip_file = ZipFile("main/catalogs/"+filename, 'r')
 
     with zip_file.open(zip_file.namelist()[1]) as csv_file:
@@ -252,7 +252,9 @@ def parse_SIMC(filename):
         text_file = io.TextIOWrapper(csv_file)
         csv_reader = csv.reader(text_file, delimiter=";")
 
+        size = 0
 
         for row in csv_reader:
-            print(row)
-            input(1)
+            if row != []:
+                size+=1
+    return print("Found objects: ", size)
