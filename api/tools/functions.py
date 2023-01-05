@@ -6,6 +6,8 @@ from base64 import b64decode
 from zipfile import ZipFile
 import csv
 import io
+from time import sleep
+from progress.bar import Bar
 
 
 STATE_DATE = datetime.now()
@@ -76,6 +78,22 @@ def download_catalogs(client, is_authenticated=False, all=False, simc=False, uli
             file.write(decoded)
             file.close()
         print(f"Succesfully downloaded: TERC.zip")
+
+
+def check_file_length(filename):
+    zip_file = ZipFile("main/catalogs/"+filename, 'r')
+
+    with zip_file.open(zip_file.namelist()[1]) as csv_file:
+    
+        text_file = io.TextIOWrapper(csv_file)
+        csv_reader = csv.reader(text_file, delimiter=";")
+        csv_reader.__next__()
+        size = 0
+
+        for row in csv_reader:
+            if row != []:
+                size+=1
+    return size
 
 # Wojewodztwa, powiaty, gminy
 def parse_TERC(filename, verbose=True):
@@ -231,7 +249,7 @@ def parse_ULIC(filename):
                 ulica = models.Ulica.objects.create(
                     name = row[index_name],
                     second_name = row[index_second_name],
-                    full_name = f"{row[index_type]} {row[index_name]} {row[index_second_name]}",
+                    full_name = f"{row[index_type]} {row[index_second_name]} {row[index_name]}",
                     type = row[index_type],
                     ul_id = row[index_ul_id],
                     miejscowosc = miejsc,
@@ -242,19 +260,3 @@ def parse_ULIC(filename):
                 )
 
                 print(f"Created ulica: {ulica}, {ulica.ul_id}, {ulica.wojewodztwo}")
-
-
-def check_len_SIMC(filename):
-    zip_file = ZipFile("main/catalogs/"+filename, 'r')
-
-    with zip_file.open(zip_file.namelist()[1]) as csv_file:
-    
-        text_file = io.TextIOWrapper(csv_file)
-        csv_reader = csv.reader(text_file, delimiter=";")
-
-        size = 0
-
-        for row in csv_reader:
-            if row != []:
-                size+=1
-    return print("Found objects: ", size)
