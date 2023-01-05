@@ -39,3 +39,12 @@ class MiejscowoscSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return instance.json()
+
+class UlicaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Ulica
+        fields = ["id", "ul_id", "name", "second_name", "full_name", "type", "wojewodztwo", "powiat", "gmina", "miejscowosc"]
+
+    def to_representation(self, instance):
+        return instance.json()

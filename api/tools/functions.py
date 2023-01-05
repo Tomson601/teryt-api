@@ -2,14 +2,12 @@ from zeep import Client
 from zeep.wsse.username import UsernameToken
 from datetime import datetime
 from main import models
-# import requests
-# import time
 from base64 import b64decode
 from zipfile import ZipFile
 import csv
 import io
-import json
-import os
+from time import sleep
+from progress.bar import Bar
 
 
 STATE_DATE = datetime.now()
@@ -81,9 +79,25 @@ def download_catalogs(client, is_authenticated=False, all=False, simc=False, uli
             file.close()
         print(f"Succesfully downloaded: TERC.zip")
 
+
+def check_file_length(filename):
+    zip_file = ZipFile("main/catalogs/"+filename, 'r')
+
+    with zip_file.open(zip_file.namelist()[1]) as csv_file:
+    
+        text_file = io.TextIOWrapper(csv_file)
+        csv_reader = csv.reader(text_file, delimiter=";")
+        csv_reader.__next__()
+        size = 0
+
+        for row in csv_reader:
+            if row != []:
+                size+=1
+    return size
+
 # Wojewodztwa, powiaty, gminy
 def parse_TERC(filename, verbose=True):
-    zip_file = ZipFile(filename, 'r')
+    zip_file = ZipFile("main/catalogs/"+filename, 'r')
 
     with zip_file.open(zip_file.namelist()[1]) as csv_file:
     
@@ -145,7 +159,7 @@ def parse_TERC(filename, verbose=True):
 
 # Miejscowosci EST: 10:00 mins, 102311 objects
 def parse_SIMC(filename):
-    zip_file = ZipFile(filename, 'r')
+    zip_file = ZipFile("main/catalogs/"+filename, 'r')
 
     with zip_file.open(zip_file.namelist()[1]) as csv_file:
     
@@ -160,6 +174,7 @@ def parse_SIMC(filename):
         index_woj = first_row.index("\ufeffWOJ")
         index_pow = first_row.index("POW")
         index_gmi = first_row.index("GMI")
+        index_sym_id = first_row.index("SYM")
 
         for row in csv_reader:
             if row != []:
@@ -177,7 +192,7 @@ def parse_SIMC(filename):
 
                 miejscowosc = models.Miejscowosc.objects.create(
                     name = row[index_name],
-                    miejsc_id = row[index_woj],
+                    miejsc_id = row[index_sym_id],
                     wojewodztwo = wojewodztwo,
                     powiat = powiat,
                     gmina = gmina,
@@ -188,7 +203,7 @@ def parse_SIMC(filename):
 
 
 def parse_ULIC(filename):
-    zip_file = ZipFile(filename, 'r')
+    zip_file = ZipFile("main/catalogs/"+filename, 'r')
 
     with zip_file.open(zip_file.namelist()[1]) as csv_file:
     
@@ -196,37 +211,52 @@ def parse_ULIC(filename):
         csv_reader = csv.reader(text_file, delimiter=";")
 
         # Gathering keywords
-        # first_row = csv_reader.__next__()
+        first_row = csv_reader.__next__()
 
-        # index_status_on_day = first_row.index("STAN_NA")
-        # index_name = first_row.index("NAZWA")
-        # index_woj = first_row.index("\ufeffWOJ")
-        # index_pow = first_row.index("POW")
-        # index_gmi = first_row.index("GMI")
+        index_status_on_day = first_row.index("STAN_NA")
+        index_name = first_row.index("NAZWA_1")
+        index_second_name = first_row.index("NAZWA_2")
+        index_woj = first_row.index("\ufeffWOJ")
+        index_pow = first_row.index("POW")
+        index_gmi = first_row.index("GMI")
+        index_miejsc = first_row.index("SYM")
+        index_type = first_row.index("CECHA")
+        index_ul_id = first_row.index("SYM_UL")
 
         for row in csv_reader:
             if row != []:
-                print(row)
-                input("SIEMA!")
-                # wojewodztwo = models.Wojewodztwo.objects.get(woj_id=row[index_woj])
+                wojewodztwo = models.Wojewodztwo.objects.get(woj_id=row[index_woj])
 
-                # powiaty = models.Powiat.objects.filter(wojewodztwo=wojewodztwo)
-                # for i in powiaty:
-                #     if i.pow_id == row[index_pow]:
-                #         powiat = i
+                powiaty = models.Powiat.objects.filter(wojewodztwo=wojewodztwo)
+                for i in powiaty:
+                    if i.pow_id == row[index_pow]:
+                        print(i)
+                        powiat = i
 
-                # gminy = models.Gmina.objects.filter(wojewodztwo=wojewodztwo, powiat=powiat)
-                # for i in gminy:
-                #     if i.gmi_id == row[index_gmi]:
-                #         gmina = i
+                gminy = models.Gmina.objects.filter(wojewodztwo=wojewodztwo, powiat=powiat)
+                for i in gminy:
+                    if i.gmi_id == row[index_gmi]:
+                        print(i)
+                        gmin = i
 
-                # miejscowosc = models.Miejscowosc.objects.create(
-                #     name = row[index_name],
-                #     miejsc_id = row[index_woj],
-                #     wojewodztwo = wojewodztwo,
-                #     powiat = powiat,
-                #     gmina = gmina,
-                #     status_on_day = row[index_status_on_day],
-                # )
+                miejscowosci = models.Miejscowosc.objects.filter(wojewodztwo=wojewodztwo, powiat=powiat, gmina=gmin)
+                for i in miejscowosci:
+                    if i.miejsc_id == row[index_miejsc]:
+                        print(i)
+                        miejsc = i
 
-                # print(f"Created miejscowosc: {miejscowosc}")
+
+                ulica = models.Ulica.objects.create(
+                    name = row[index_name],
+                    second_name = row[index_second_name],
+                    full_name = f"{row[index_type]} {row[index_second_name]} {row[index_name]}",
+                    type = row[index_type],
+                    ul_id = row[index_ul_id],
+                    miejscowosc = miejsc,
+                    wojewodztwo = wojewodztwo,
+                    powiat = powiat,
+                    gmina = gmin,
+                    status_on_day = row[index_status_on_day],
+                )
+
+                print(f"Created ulica: {ulica}, {ulica.ul_id}, {ulica.wojewodztwo}")

@@ -1,3 +1,5 @@
+about-time==4.2.1
+alive-progress==3.0.1
 asgiref==3.6.0
 asttokens==2.2.1
 attrs==22.2.0
@@ -8,8 +10,10 @@ charset-normalizer==2.1.1
 decorator==5.1.1
 dj-database-url==1.2.0
 Django==4.1.4
+django-filter==22.1
 djangorestframework==3.14.0
 executing==1.2.0
+grapheme==0.6.0
 gunicorn==20.1.0
 idna==3.4
 ipython==8.7.0
@@ -21,11 +25,14 @@ parso==0.8.3
 pexpect==4.8.0
 pickleshare==0.7.5
 platformdirs==2.6.2
+progress==1.6
+progressbar2==4.2.0
 prompt-toolkit==3.0.36
 psycopg2-binary==2.9.5
 ptyprocess==0.7.0
 pure-eval==0.2.2
 Pygments==2.13.0
+python-utils==3.4.5
 pytz==2022.7
 requests==2.28.1
 requests-file==1.5.1
@@ -33,6 +40,7 @@ requests-toolbelt==0.10.1
 six==1.16.0
 sqlparse==0.4.3
 stack-data==0.6.2
+tqdm==4.64.1
 traitlets==5.8.0
 urllib3==1.26.13
 wcwidth==0.2.5
