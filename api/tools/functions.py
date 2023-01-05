@@ -6,8 +6,6 @@ from base64 import b64decode
 from zipfile import ZipFile
 import csv
 import io
-from time import sleep
-from progress.bar import Bar
 
 
 STATE_DATE = datetime.now()
