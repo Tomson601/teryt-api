@@ -33,7 +33,7 @@ def establish_connection(credentials):
 
     return client, is_authenticated
 
-# Make sure you are in main/catalogs/ directory
+
 def download_catalogs(client, is_authenticated=False, all=False, simc=False, ulic=False, terc=False):
     if not is_authenticated:
         return("You are not logged in!")
@@ -50,7 +50,7 @@ def download_catalogs(client, is_authenticated=False, all=False, simc=False, uli
         content = simc_cat["plik_zawartosc"]
         decoded = b64decode(content)
 
-        with open("SIMC.zip", 'wb') as file:
+        with open("main/catalogs/SIMC.zip", 'wb') as file:
             file.write(decoded)
             file.close()
         print(f"Succesfully downloaded: SIMC.zip")
@@ -61,7 +61,7 @@ def download_catalogs(client, is_authenticated=False, all=False, simc=False, uli
         content = ulic_cat["plik_zawartosc"]
         decoded = b64decode(content)
 
-        with open("ULIC.zip", 'wb') as file:
+        with open("main/catalogs/ULIC.zip", 'wb') as file:
             file.write(decoded)
             file.close()
         print(f"Succesfully downloaded: ULIC.zip")
@@ -72,7 +72,7 @@ def download_catalogs(client, is_authenticated=False, all=False, simc=False, uli
         content = terc_cat["plik_zawartosc"]
         decoded = b64decode(content)
 
-        with open("TERC.zip", 'wb') as file:
+        with open("main/catalogs/TERC.zip", 'wb') as file:
             file.write(decoded)
             file.close()
         print(f"Succesfully downloaded: TERC.zip")
