@@ -17,7 +17,11 @@ Clone repository:
 Migrate database:  
 `python manage.py migrate`  
 
-Download and parse newest catalogs (CSV database files) in django shell
+Download and parse newest catalogs (CSV database files) in django shell:  
+`python manage.py download_catalogs --all true`  
+
+Parse and import objects from downloaded db files:  
+`python manage.py parse --terc true --simc true --ulic true`
 
 Run server localy:  
 `python manage.py runserver`  
