@@ -95,6 +95,8 @@ def check_file_length(filename):
 
 # Wojewodztwa, powiaty, gminy
 def parse_TERC(filename, verbose=True):
+    file_size = check_file_length("TERC.zip")
+    countdown = 0
     zip_file = ZipFile("main/catalogs/"+filename, 'r')
 
     with zip_file.open(zip_file.namelist()[1]) as csv_file:
@@ -123,7 +125,8 @@ def parse_TERC(filename, verbose=True):
                         status_on_day = row[index_status_on_day],
                     )
                     if verbose:
-                        print(f"Created wojwodztwo: {wojewodztwo}")
+                        print(f"{countdown}/{file_size} Created wojwodztwo: {wojewodztwo}")
+                        countdown+=1
 
                 elif row[index_woj] != '' and row[index_pow] != '' and row[index_gmi] == '':
                     powiat = models.Powiat.objects.create(
@@ -134,7 +137,8 @@ def parse_TERC(filename, verbose=True):
                         wojewodztwo = wojewodztwo,
                     )
                     if verbose:
-                        print(f"Created powiat: {powiat}, in wojewodztwo: {wojewodztwo}")
+                        print(f"{countdown}/{file_size} Created powiat: {powiat}, in wojewodztwo: {wojewodztwo}")
+                        countdown+=1
 
                 else:
                     gmina = models.Gmina.objects.create(
@@ -146,7 +150,8 @@ def parse_TERC(filename, verbose=True):
                         powiat = powiat,
                     )
                     if verbose:
-                        print(f"Created gmina: {gmina}, in powiat: {powiat}")
+                        print(f"{countdown}/{file_size} Created gmina: {gmina}, in powiat: {powiat}")
+                        countdown+=1
                 count_objects+=1
 
             else:
@@ -157,6 +162,8 @@ def parse_TERC(filename, verbose=True):
 
 # Miejscowosci EST: 10:00 mins, 102311 objects
 def parse_SIMC(filename):
+    file_size = check_file_length("SIMC.zip")
+    countdown = 0
     zip_file = ZipFile("main/catalogs/"+filename, 'r')
 
     with zip_file.open(zip_file.namelist()[1]) as csv_file:
@@ -197,10 +204,13 @@ def parse_SIMC(filename):
                     status_on_day = row[index_status_on_day],
                 )
 
-                print(f"Created miejscowosc: {miejscowosc}")
+                print(f"{countdown}/{file_size} Created miejscowosc: {miejscowosc}")
+                countdown+=1
 
 
 def parse_ULIC(filename):
+    file_size = check_file_length("ULIC.zip")
+    countdown = 0
     zip_file = ZipFile("main/catalogs/"+filename, 'r')
 
     with zip_file.open(zip_file.namelist()[1]) as csv_file:
@@ -228,19 +238,16 @@ def parse_ULIC(filename):
                 powiaty = models.Powiat.objects.filter(wojewodztwo=wojewodztwo)
                 for i in powiaty:
                     if i.pow_id == row[index_pow]:
-                        print(i)
                         powiat = i
 
                 gminy = models.Gmina.objects.filter(wojewodztwo=wojewodztwo, powiat=powiat)
                 for i in gminy:
                     if i.gmi_id == row[index_gmi]:
-                        print(i)
                         gmin = i
 
                 miejscowosci = models.Miejscowosc.objects.filter(wojewodztwo=wojewodztwo, powiat=powiat, gmina=gmin)
                 for i in miejscowosci:
                     if i.miejsc_id == row[index_miejsc]:
-                        print(i)
                         miejsc = i
 
 
@@ -257,4 +264,5 @@ def parse_ULIC(filename):
                     status_on_day = row[index_status_on_day],
                 )
 
-                print(f"Created ulica: {ulica}, {ulica.ul_id}, {ulica.wojewodztwo}")
+                print(f"{countdown}/{file_size} Created ulica: {ulica}, {ulica.ul_id}, {file_size}")
+                countdown+=1
